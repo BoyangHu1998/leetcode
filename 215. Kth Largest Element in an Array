@@ -1,0 +1,59 @@
+import java.util.Random;
+
+class Solution {
+    public int findKthLargest(int[] a, int k) {
+        // implemented using textbook algorithm page 54 Sanjoy
+        // A randomized divide-and-conquer algorithm for selection
+        // T(n) = T(n/2) + O(n) = O(n) in average
+        // O(n^2) in worst case
+        
+        int left = 0, right = a.length - 1;
+        
+        return findKthSmallest(a, a.length + 1 - k, left, right);
+    }
+    
+    private int findKthSmallest(int[] a, int k, int left, int right) {
+        if (left == right) {
+            return a[left];
+        }
+        
+        // left subarray [left, index) right subarray[index, right]
+        int index = partition(a, left, right); 
+        if (k == index + 1) { // index + 1 is the curr ranking
+            return a[index];
+        }
+        if (k < index + 1) {
+            return findKthSmallest(a, k, left, index);
+        }
+        return findKthSmallest(a, k, index + 1, right);
+
+    }
+    
+    // e1 from left subarray < pivot  <= e2 from right subarray
+    private int partition(int[] a, int left, int right) { 
+        // left subarray [left, l) right subarray (r, right]
+        int randomIdx = new Random().nextInt((right - left) + 1) + left;
+        swap(a, randomIdx, left);
+        
+        int pivot = a[left];
+        int l = left + 1, r = right;
+        while (l <= r) {
+            if (a[l] < pivot) {
+                l++;
+            } else if (pivot <= a[r]) {
+                r--;
+            } else {
+                swap(a, l++, r--);
+            }
+        }
+        // post processing
+        swap(a, left, r);
+        return r;
+    }
+    
+    private void swap(int[] a, int x, int y) {
+        int tmp = a[x];
+        a[x] = a[y];
+        a[y] = tmp;
+    }
+}
