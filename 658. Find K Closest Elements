@@ -1,0 +1,72 @@
+public class Solution {
+  public List<Integer> findClosestElements(int[] array, int k, int target) {
+    // Binary Search + 中心开花: O(log(array.length)) + O(k))
+    // K is guranteed to be >= 0 and K is guranteed to be <= A.length
+    // Base Case
+    int[] resultArr = null; 
+    List<Integer> ret = new ArrayList<Integer>();
+    if (array == null || k == 0) {
+      return ret;
+    }
+
+    // 1. BS
+    int index = findCloset(array, target);
+    if (k == 1) {
+        resultArr = new int[] {array[index]};
+    } else {
+        // 2. 中心开花
+        resultArr = findKClosest(array, index, index, target, k - 1);
+    }
+    return Arrays.stream(resultArr).boxed().collect(Collectors.toList());
+  }
+
+  private int findCloset(int[] array, int target) {
+    int left = 0, right = array.length - 1;
+    while (left < right - 1) {
+      int mid = left + (right - left) / 2;
+      if (target == array[mid]) {
+        return mid;
+      }
+      if (target < array[mid]) {
+        right = mid;
+      } else {
+        left = mid;
+      }
+    }
+    if (Math.abs(array[left] - target) <= Math.abs(array[right] - target)) {
+      return left;
+    }
+    return right;
+  }
+    
+
+  private int[] findKClosest(int[] array, int left, int right, int target, int k) {
+    if (right == array.length - 1) {
+      return Arrays.copyOfRange(array, left - k, right + 1);
+    }
+    if (left == 0) {
+      return Arrays.copyOfRange(array, 0, right + k + 1);
+    }
+      
+    if (k == 1) {
+      if (Math.abs(array[left - 1] - target) <= Math.abs(array[right + 1] - target)) {
+        left--;
+      } else {
+        right++;
+      }
+      return Arrays.copyOfRange(array, left, right + 1);
+    }
+
+    int newLeft = left - k / 2;
+    int newRight = right + k / 2;
+
+    int leftDiff = newLeft < 0 ? Integer.MAX_VALUE : Math.abs(target - array[newLeft]);
+    int rightDiff = newRight >= array.length ? Integer.MAX_VALUE : Math.abs(target -array[newRight]);
+
+    if (leftDiff <= rightDiff) {
+      return findKClosest(array, newLeft, right, target, k - k / 2);
+    } else {
+      return findKClosest(array, left, newRight, target, k - k / 2);
+    }
+  }
+}
