@@ -1,0 +1,57 @@
+    private int kth(int[] a, int aL, int[] b, int bL, int k) {
+        // base case
+        if (aL >= a.length) {
+            return b[bL + k - 1];
+        }
+        if (bL >= b.length) {
+            return a[aL + k - 1];
+        }
+        if (k == 1) {
+            return Math.min(a[aL], b[bL]);
+        }
+        
+        // Since index starts from left,
+        // the k/2-th element should be arrlen + k/2 - 1
+        
+        int amid = aL + k/2 - 1;
+        int bmid = bL + k/2 - 1;
+        
+        // Why is correct?
+        // if a.size too small, the remove elements from b first.
+        int aval = amid >= a.length ? Integer.MAX_VALUE : a[amid];
+        int bval = bmid >= b.length ? Integer.MAX_VALUE : b[bmid];
+
+        if (aval <= bval) {
+            return kth(a, amid + 1, b, bL, k - k / 2);
+        } else {
+            return kth(a, aL, b, bmid + 1, k - k / 2);
+        }
+    }
+    
+    private int findKthElementSortedArray(int[] a, int[] b, int k) {
+        int len = a.length + b.length;
+        
+        int aL = 0, bL = 0, numLeft = k; // aL and bL are length of subarray which is before k-th element
+        while (k - (aL + bL) > 1) {
+            int mid = (k - (aL + bL)) / 2;
+            if (aL + mid > a.length) {
+                bL += mid;
+            } else if (bL + mid > b.length) {
+                aL += mid;
+            } else { 
+                if (a[aL + mid -1] <= b[bL + mid -1]) {
+                    aL += mid;
+                } else {
+                    bL += mid;
+                }
+            }
+        }
+
+        if (aL >= a.length) {
+            return b[bL];
+        } else if (bL >= b.length) {
+            return a[aL];
+        }
+        
+        return a[aL] <= b[bL] ?  a[aL] : b[bL];
+    }
