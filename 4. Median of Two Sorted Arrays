@@ -1,0 +1,52 @@
+class Solution {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        if (nums1.length + nums2.length < 1) {
+            return nums1.length == 1 ? nums1[0] : nums2[0];
+        }
+        
+        int len = nums1.length + nums2.length;
+        double ret = 0;
+        
+        if (len % 2 == 0) {
+            int k1 = len / 2;
+            int k2 = len / 2 + 1;
+            ret = (double) findKthElementSortedArray(nums1, nums2, k1);
+            ret += (double) findKthElementSortedArray(nums1, nums2, k2);
+            ret /= 2;
+        } else {
+            int k = (len + 1) / 2;
+            ret = findKthElementSortedArray(nums1, nums2, k);
+        }
+        
+        return ret;
+    }
+    
+    // k >= 1, a, b length sum >= k
+    private int findKthElementSortedArray(int[] a, int[] b, int k) {
+        int len = a.length + b.length;
+        
+        int aL = 0, bL = 0, numLeft = k; // aL and bL are length of subarray which is before k-th element
+        while (k - (aL + bL) > 1) {
+            int mid = (k - (aL + bL)) / 2;
+            if (aL + mid > a.length) {
+                bL += mid;
+            } else if (bL + mid > b.length) {
+                aL += mid;
+            } else { 
+                if (a[aL + mid -1] <= b[bL + mid -1]) {
+                    aL += mid;
+                } else {
+                    bL += mid;
+                }
+            }
+        }
+
+        if (aL >= a.length) {
+            return b[bL];
+        } else if (bL >= b.length) {
+            return a[aL];
+        }
+        
+        return a[aL] <= b[bL] ?  a[aL] : b[bL];
+    }
+}
