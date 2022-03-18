@@ -1,5 +1,6 @@
 import java.util.Random;
 
+// Original solution:
 class Solution {
     public int findKthLargest(int[] a, int k) {
         // implemented using textbook algorithm page 54 Sanjoy
@@ -57,3 +58,41 @@ class Solution {
         a[y] = tmp;
     }
 }
+
+// New partition with三数取中法
+    // e1 from left subarray < pivot  <= e2 from right subarray
+    private int partition(int[] a, int left, int right) { 
+        // left subarray [left, l) right subarray (r, right]
+        // int randomIdx = new Random().nextInt((right - left) + 1) + left;
+        // swap(a, randomIdx, left);
+        takeMid3num(a, left, left + ((right - left) >> 1), right);
+        
+        int pivot = a[left + 1];
+        int l = left + 2, r = right - 1;
+        while (l <= r) {
+            if (a[l] <= pivot) {
+                l++;
+            } else if (pivot < a[r]) {
+                r--;
+            } else {
+                swap(a, l++, r--);
+            }
+        }
+        // post processing
+        swap(a, left + 1, r);
+        return r;
+    }
+    
+    
+    private void takeMid3num(int[] a, int left, int mid , int right) {
+        if (a[left] > a[mid]) { // for a[] 的最左为最小
+            swap(a, left, mid);
+        }
+        if (a[left] > a[right]) { // for a[] 的最左为最小
+            swap(a, left, right);
+        }
+        if (a[right] < a[mid]) { // for a[] 的最右为最大
+            swap(a, right, mid);
+        }
+        swap(a, mid, left + 1); // left + 1 为pivot
+    }
