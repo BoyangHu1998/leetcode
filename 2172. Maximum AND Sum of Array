@@ -1,0 +1,51 @@
+Time complexity is O(ns^n) if we do not implement memorization(pruning).
+
+Well, let me do a little time complexity analysis with memorization using the Recursion Tree:
+
+There are three types of recursion tree nodes : a. it is a node with memo[mask] > 0 b. it is a node with indexNums < 0 c. Else it is a node with (memo[mask] == 0)
+a. It is a leaf node. It then return immediately with O(1), and it does not have no any child nodes in recursion tree.
+b. It is a leaf node. it then return immediately with O(1), and it does not have no any child nodes in recursion tree.
+c. It is the only type of nodes can have children nodes!!!
+(Well, to sum up, there were actually two types of nodes: leaves and nodes may have children)
+
+Let's focus on parent nodes (well, I mean nodes may have children). Each parent nodes (c nodes) has at most ns children nodes! (Aside: Children nodes can be node type a, type b, or type-c. :）)
+Thus, each parent nodes have time complexity ***O(ns)***. (ignoring the time complexity of the children nodes for now)
+
+Well, how many parent nodes are there in the recursion tree?
+a. For each mask(state).
+b. For any nums[i] [1,15] with slot number 1, (nums[i] & slot) = nums[i] & 1 = 1 > 0; will update memo[mask]
+c. Next time, we visit dp(mask) recursion tree node we will see memo[mask] > 0
+d. Thus, a recursion tree nodes with same mask(state) only can be a parent node once. (After the first time called and returned, the node with the same mask(state) will be a leaf node)
+c. Thus, the number of parent nodes <= maximum of states(masks) = 3^ns
+
+T(Recursion) = SUM_j = 1... (T(parent nodes_j)) = O(ns*3^ns)
+Hope this hopes, it is my first time to anlayze the recursion with memo, and first time reply on leetcode. I hope you could understand my bad wording.
+
+class Solution {
+    // dp with memo
+    public int maximumANDSum(int[] nums, int numSlots) {
+        // mask: state of numSlots 2: 2 remaining slots 1: 1 remaining slots 0: no remaining slots
+        int mask = (int) Math.pow(3, numSlots) - 1; 
+        int[] memo = new int[mask + 1]; // memo[m]: the curr max for each state m
+        
+        // dp[i, mask] = maximum of sum of arrange A[0...i] into slots & with slots state, the mask
+        return dp(nums.length - 1, mask, nums, numSlots, memo);
+    }
+    
+    private int dp(int numsIdx, int mask, int[] nums, int numSlots, int[] memo) {
+        if (memo[mask] > 0) {
+            return memo[mask];
+        }
+        if (numsIdx < 0) {
+            return 0;
+        }
+        
+        for (int slot = 1, bit = 1; slot <= numSlots; slot++, bit*=3) {
+            if (mask / bit % 3 > 0) { // If the slot is avalible
+                memo[mask] = Math.max(memo[mask], (nums[numsIdx] & slot) + dp(numsIdx - 1, mask - bit, nums, numSlots, memo));
+            }
+        }
+        return memo[mask];
+    }
+
+}
